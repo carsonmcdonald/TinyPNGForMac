@@ -8,7 +8,7 @@
         <scene sceneID="csU-Ey-4P6">
             <objects>
                 <windowController id="aSw-M1-R3l" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="tP0-v3-RLP">
+                    <window key="window" title="Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="tP0-v3-RLP">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="567" height="412"/>
@@ -23,10 +23,10 @@
             </objects>
             <point key="canvasLocation" x="808.5" y="-236"/>
         </scene>
-        <!--Preferences View Controller-->
+        <!--Preferneces-->
         <scene sceneID="I5I-vs-wbe">
             <objects>
-                <viewController id="B6j-dT-6wY" customClass="PreferencesViewController" customModule="TinyPNG" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController title="Preferneces" id="B6j-dT-6wY" customClass="PreferencesViewController" customModule="TinyPNG" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="Hje-uY-sug">
                         <rect key="frame" x="0.0" y="0.0" width="592" height="429"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -374,7 +374,7 @@
         <scene sceneID="R2V-B0-nI4">
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
-                    <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
+                    <window key="window" title="TinyPNG" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
                         <rect key="contentRect" x="196" y="240" width="676" height="346"/>
