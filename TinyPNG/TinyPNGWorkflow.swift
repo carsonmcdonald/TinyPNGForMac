@@ -1,7 +1,7 @@
 import Foundation
 
 enum ImageProcessingStatus {
-    case Waiting, Uploading, Downloading, Error, Complete
+    case Waiting, Started, Uploading, Downloading, Error, Complete
 }
 
 class ImageProcessingInfo {
@@ -38,7 +38,10 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
     
     private var imageInfoIndex = 0
     private var imageProcessingInfoList = [ImageProcessingInfo]()
+    private let activeTaskToInfoSem = dispatch_semaphore_create(1)
     private var activeTaskToInfo = [NSURLSessionTask:ImageProcessingInfo]()
+    
+    private let MAX_QUEUED = 10
     
     func queueImageForProcessing(filePath:String) {
         
@@ -47,13 +50,15 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
         imageInfoIndex++
         
         if let imageURL = NSURL(fileURLWithPath: filePath) {
-            if self.isPNG(imageURL) {
+            if FileUtils.isPNG(imageURL) {
                 
                 var imageProcessingInfo = ImageProcessingInfo(identifier: imageInfoIndex, filename: filePath.lastPathComponent, filePath: imageURL)
                 self.imageProcessingInfoList.append(imageProcessingInfo)
                 
                 if let apiKey = PreferencesManager.getAPIKey() {
-                    self.startFileUpload(imageProcessingInfo, apiKey: apiKey)
+                    if self.activeTaskToInfo.count < self.MAX_QUEUED {
+                        self.startFileUpload(imageProcessingInfo, apiKey: apiKey)
+                    }
                 } else {
                     imageProcessingInfo.errorMessage = "Invalid API key."
                 }
@@ -79,8 +84,10 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
     
     func URLSession(session: NSURLSession, task: NSURLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
         
+        dispatch_semaphore_wait(self.activeTaskToInfoSem, DISPATCH_TIME_FOREVER)
         if let imageProcessingInfo = self.activeTaskToInfo[task] {
-            if imageProcessingInfo.status == .Waiting {
+            dispatch_semaphore_signal(self.activeTaskToInfoSem)
+            if imageProcessingInfo.status == ImageProcessingStatus.Waiting || imageProcessingInfo.status == ImageProcessingStatus.Started {
                 imageProcessingInfo.status = .Uploading
                 if let cb = self.statusUpdate {
                     dispatch_async(dispatch_get_main_queue(), { () -> Void in
@@ -94,6 +101,8 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
     }
     
     private func startFileUpload(imageProcessingInfo:ImageProcessingInfo, apiKey:String) {
+        imageProcessingInfo.status = .Started
+        
         if let tinyPNGPostURL = NSURL(string: "https://api.tinypng.com/shrink") {
             let request = self.createAuthedRequest("POST", urlForRequest:tinyPNGPostURL, apiKey: apiKey)
 
@@ -165,7 +174,9 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
                 self.taskCleanup()
             
             })
+            dispatch_semaphore_wait(self.activeTaskToInfoSem, DISPATCH_TIME_FOREVER)
             self.activeTaskToInfo[task] = imageProcessingInfo
+            dispatch_semaphore_signal(self.activeTaskToInfoSem)
             task.resume()
         } else {
             imageProcessingInfo.errorMessage = "Could not parse post URL"
@@ -236,16 +247,29 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
                 self.taskCleanup()
                 
             })
+            dispatch_semaphore_wait(self.activeTaskToInfoSem, DISPATCH_TIME_FOREVER)
             self.activeTaskToInfo[task] = imageProcessingInfo
+            dispatch_semaphore_signal(self.activeTaskToInfoSem)
             task.resume()
         }
         
     }
     
     private func taskCleanup() {
+        dispatch_semaphore_wait(self.activeTaskToInfoSem, DISPATCH_TIME_FOREVER)
         for task in self.activeTaskToInfo.keys {
             if task.state == NSURLSessionTaskState.Completed {
                 self.activeTaskToInfo.removeValueForKey(task)
+            }
+        }
+        dispatch_semaphore_signal(self.activeTaskToInfoSem)
+        for imageProcessingInfo in self.imageProcessingInfoList {
+            if imageProcessingInfo.status == .Waiting {
+                if self.activeTaskToInfo.count < self.MAX_QUEUED {
+                    if let apiKey = PreferencesManager.getAPIKey() {
+                        self.startFileUpload(imageProcessingInfo, apiKey: apiKey)
+                    }
+                }
             }
         }
     }
@@ -262,20 +286,6 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
             self.session = NSURLSession(configuration: configuration, delegate: self, delegateQueue: self.sessionQueue)
             self.session.sessionDescription = "Session for TinyPNG Workflow"
         }
-    }
-    
-    private func isPNG(imageURL:NSURL) -> Bool {
-        
-        if let imageSource = CGImageSourceCreateWithURL(imageURL, nil),
-            let imageType = CGImageSourceGetType(imageSource) {
-                
-                if imageType == kUTTypePNG {
-                    return true
-                }
-                
-        }
-        
-        return false
     }
     
     private func createAuthedRequest(method:String, urlForRequest:NSURL, apiKey:String) -> NSURLRequest {
