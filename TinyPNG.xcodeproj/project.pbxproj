@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B61535F51AF3ABA8001BF641 /* FileUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B61535F41AF3ABA8001BF641 /* FileUtils.swift */; };
 		B65B23C41AE296DC006A423A /* TinyPNGWorkflow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65B23C31AE296DC006A423A /* TinyPNGWorkflow.swift */; };
 		B65B23C61AE49753006A423A /* ImageProcessingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B65B23C51AE49753006A423A /* ImageProcessingTableViewCell.swift */; };
 		B65B23C81AEBE3A6006A423A /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = B65B23C71AEBE3A6006A423A /* Credits.rtf */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		B61535F41AF3ABA8001BF641 /* FileUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileUtils.swift; sourceTree = "<group>"; };
 		B65B23C31AE296DC006A423A /* TinyPNGWorkflow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TinyPNGWorkflow.swift; sourceTree = "<group>"; };
 		B65B23C51AE49753006A423A /* ImageProcessingTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageProcessingTableViewCell.swift; sourceTree = "<group>"; };
 		B65B23C71AEBE3A6006A423A /* Credits.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Credits.rtf; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				B6C4F38D1AD857A8003CDD42 /* Config.swift */,
+				B61535F41AF3ABA8001BF641 /* FileUtils.swift */,
 				B68CBF991AD70DA5008555FF /* AppDelegate.swift */,
 				B68CBFB61AD71344008555FF /* FileDropView.swift */,
 				B6FD144F1AE28EC4005EB9F6 /* PreferencesManager.swift */,
@@ -242,6 +245,7 @@
 				B68CBFB71AD71344008555FF /* FileDropView.swift in Sources */,
 				B68CBFB91AD80FFB008555FF /* FileTableViewController.swift in Sources */,
 				B6FD144E1AE28DED005EB9F6 /* PreferencesViewController.swift in Sources */,
+				B61535F51AF3ABA8001BF641 /* FileUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -362,6 +366,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = TinyPNG/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -373,6 +378,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = TinyPNG/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
