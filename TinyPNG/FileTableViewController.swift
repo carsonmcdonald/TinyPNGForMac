@@ -17,7 +17,7 @@ class FileTableViewController: NSViewController, NSTableViewDataSource {
     override func viewDidLoad() {
         self.tinyPNGWorkflow.statusUpdate = { (imageProcessingInfo:ImageProcessingInfo) -> Void in
             
-            for row in 0...self.tinyPNGWorkflow.getImageCount() {
+            for row in 0...self.tinyPNGWorkflow.getImageCount()-1 {
                 if let cell = self.filenameTable.viewAtColumn(0, row: row, makeIfNecessary: false) as? ImageProcessingTableViewCell {
                     
                     if cell.imageProcessingInfo.identifier == imageProcessingInfo.identifier {
@@ -38,7 +38,15 @@ class FileTableViewController: NSViewController, NSTableViewDataSource {
             if notification.userInfo != nil {
                 if let fileList = notification.userInfo!["fileList"] as? [String] {
                     for file in fileList {
-                        self.tinyPNGWorkflow.queueImageForProcessing(file)
+                        if FileUtils.isDirectory(file) {
+                            var nestedFiles = [String]()
+                            FileUtils.getNestedPNGFiles(file, files: &nestedFiles)
+                            for subFile in nestedFiles {
+                                self.tinyPNGWorkflow.queueImageForProcessing(subFile)
+                            }
+                        } else {
+                            self.tinyPNGWorkflow.queueImageForProcessing(file)
+                        }
                     }
                     
                     self.filenameTable.reloadData()
