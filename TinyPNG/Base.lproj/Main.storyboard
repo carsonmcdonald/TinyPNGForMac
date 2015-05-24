@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7531" systemVersion="14D131" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
     <scenes>
         <!--Window Controller-->
@@ -576,7 +576,11 @@
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="4EG-TS-gop"/>
                             </imageView>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="BDf-kl-Pw2">
-                                <rect key="frame" x="20" y="12" width="628" height="413"/>
+                                <rect key="frame" x="20" y="425" width="0.0" height="0.0"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="413" id="Qra-Lz-fRO"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="628" id="jmZ-BC-eUc"/>
+                                </constraints>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="0LO-yb-sXZ"/>
                             </imageView>
                             <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="45Q-j6-1MB">
@@ -613,9 +617,9 @@
                             <constraint firstItem="zze-IK-5kj" firstAttribute="leading" secondItem="nDR-VH-dEV" secondAttribute="leading" constant="44" id="M4U-qB-AHS"/>
                             <constraint firstItem="SsO-Nm-yoR" firstAttribute="leading" secondItem="nDR-VH-dEV" secondAttribute="leading" constant="28" id="Ngq-VL-W3w"/>
                             <constraint firstItem="zze-IK-5kj" firstAttribute="top" secondItem="SsO-Nm-yoR" secondAttribute="bottom" constant="17" id="QLF-oB-Z6T"/>
-                            <constraint firstAttribute="bottom" secondItem="BDf-kl-Pw2" secondAttribute="bottom" constant="12" id="X6q-bv-z7g"/>
+                            <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="BDf-kl-Pw2" secondAttribute="bottom" constant="12" id="X6q-bv-z7g"/>
                             <constraint firstItem="pw2-4G-nJB" firstAttribute="leading" secondItem="zze-IK-5kj" secondAttribute="trailing" constant="8" id="eMk-Dy-cMv"/>
-                            <constraint firstAttribute="trailing" secondItem="BDf-kl-Pw2" secondAttribute="trailing" constant="20" id="rE9-Wu-iA0"/>
+                            <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="BDf-kl-Pw2" secondAttribute="trailing" constant="20" id="rE9-Wu-iA0"/>
                             <constraint firstItem="pw2-4G-nJB" firstAttribute="top" secondItem="45Q-j6-1MB" secondAttribute="bottom" constant="12" id="sSG-YD-wXX"/>
                             <constraint firstAttribute="trailing" secondItem="45Q-j6-1MB" secondAttribute="trailing" constant="20" id="ukn-Cj-58p"/>
                             <constraint firstItem="vs0-fC-qAD" firstAttribute="leading" secondItem="nDR-VH-dEV" secondAttribute="leading" constant="13" id="yJt-32-MQw"/>
