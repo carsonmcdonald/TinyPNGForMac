@@ -46,7 +46,7 @@ class DetailInfoViewController: NSViewController {
                 return "Error: Unknown error"
             }
         case .Complete:
-            return String(format:"Complete: Savings of %.2f%%", imageProcessingInfo.savingsRatio!)
+            return String(format:"Complete: Savings of %.2f%%", imageProcessingInfo.savingsRatio! * 100.0)
         default:
             return "Waiting"
         }
