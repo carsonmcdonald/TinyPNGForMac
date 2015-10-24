@@ -15,7 +15,7 @@ class DetailInfoViewController: NSViewController {
     }
     
     override func viewDidLoad() {
-        self.infoDetailNotification = NSNotificationCenter.defaultCenter().addObserverForName(Config.Notification.FileDetailSelected, object: nil, queue: NSOperationQueue.mainQueue()) { (notification:NSNotification!) -> Void in
+        self.infoDetailNotification = NSNotificationCenter.defaultCenter().addObserverForName(Config.Notification.FileDetailSelected, object: nil, queue: NSOperationQueue.mainQueue()) { (notification:NSNotification) -> Void in
             
             if notification.userInfo != nil {
                 if let imageProcessingInfo = notification.userInfo!["imageProcessingInfo"] as? ImageProcessingInfo {

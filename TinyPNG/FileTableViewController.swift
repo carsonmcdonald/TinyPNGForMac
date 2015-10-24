@@ -33,7 +33,7 @@ class FileTableViewController: NSViewController, NSTableViewDataSource {
 
         }
         
-        self.filesAddedNotification = NSNotificationCenter.defaultCenter().addObserverForName(Config.Notification.FileDrop, object: nil, queue: NSOperationQueue.mainQueue()) { (notification:NSNotification!) -> Void in
+        self.filesAddedNotification = NSNotificationCenter.defaultCenter().addObserverForName(Config.Notification.FileDrop, object: nil, queue: NSOperationQueue.mainQueue()) { (notification:NSNotification) -> Void in
             
             if notification.userInfo != nil {
                 if let fileList = notification.userInfo!["fileList"] as? [String] {

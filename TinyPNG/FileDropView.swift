@@ -1,6 +1,6 @@
 import Cocoa
 
-class FileDropView: NSView, NSDraggingDestination {
+class FileDropView: NSView {
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
@@ -8,8 +8,8 @@ class FileDropView: NSView, NSDraggingDestination {
     }
     
     override func draggingEntered(sender: NSDraggingInfo) -> NSDragOperation {
-        if let pbTypes = sender.draggingPasteboard().types as? [String] {
-            if contains(pbTypes, NSFilenamesPboardType) {
+        if let pbTypes = sender.draggingPasteboard().types {
+            if pbTypes.contains(NSFilenamesPboardType) {
                 
                 if sender.draggingSourceOperationMask().rawValue & NSDragOperation.Copy.rawValue == 1 {
                     return NSDragOperation.Copy
@@ -22,8 +22,8 @@ class FileDropView: NSView, NSDraggingDestination {
     }
     
     override func performDragOperation(sender: NSDraggingInfo) -> Bool {
-        if let pbTypes = sender.draggingPasteboard().types as? [String] {
-            if contains(pbTypes, NSFilenamesPboardType) {
+        if let pbTypes = sender.draggingPasteboard().types {
+            if pbTypes.contains(NSFilenamesPboardType) {
                 
                 if sender.draggingSourceOperationMask().rawValue & NSDragOperation.Copy.rawValue == 1 {
                     if let fileList = sender.draggingPasteboard().propertyListForType(NSFilenamesPboardType) as? [String] {

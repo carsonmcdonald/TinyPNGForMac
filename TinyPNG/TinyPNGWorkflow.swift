@@ -49,25 +49,22 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
         
         imageInfoIndex++
         
-        if let imageURL = NSURL(fileURLWithPath: filePath) {
-            if FileUtils.isPNG(imageURL) {
-                
-                var imageProcessingInfo = ImageProcessingInfo(identifier: imageInfoIndex, filename: filePath.lastPathComponent, filePath: imageURL)
-                self.imageProcessingInfoList.append(imageProcessingInfo)
-                
-                if let apiKey = PreferencesManager.getAPIKey() {
-                    if self.activeTaskToInfo.count < self.MAX_QUEUED {
-                        self.startFileUpload(imageProcessingInfo, apiKey: apiKey)
-                    }
-                } else {
-                    imageProcessingInfo.errorMessage = "Invalid API key."
+        let imageURL = NSURL(fileURLWithPath: filePath)
+        if FileUtils.isPNG(imageURL) {
+            
+            let imageProcessingInfo = ImageProcessingInfo(identifier: imageInfoIndex, filename: (filePath as NSString).lastPathComponent, filePath: imageURL)
+            self.imageProcessingInfoList.append(imageProcessingInfo)
+            
+            if let apiKey = PreferencesManager.getAPIKey() {
+                if self.activeTaskToInfo.count < self.MAX_QUEUED {
+                    self.startFileUpload(imageProcessingInfo, apiKey: apiKey)
                 }
-                
             } else {
-                self.imageProcessingInfoList.append(ImageProcessingInfo(identifier: imageInfoIndex, filename: filePath.lastPathComponent, filePath: imageURL, errorMessage: "Not a PNG file"))
+                imageProcessingInfo.errorMessage = "Invalid API key."
             }
+            
         } else {
-            self.imageProcessingInfoList.append(ImageProcessingInfo(identifier: imageInfoIndex, filename: filePath.lastPathComponent, filePath: NSURL(), errorMessage: "Not a PNG file"))
+            self.imageProcessingInfoList.append(ImageProcessingInfo(identifier: imageInfoIndex, filename: (filePath as NSString).lastPathComponent, filePath: imageURL, errorMessage: "Not a PNG file"))
         }
         
         self.taskCleanup()
@@ -106,15 +103,23 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
         if let tinyPNGPostURL = NSURL(string: "https://api.tinypng.com/shrink") {
             let request = self.createAuthedRequest("POST", urlForRequest:tinyPNGPostURL, apiKey: apiKey)
 
-            let task = self.session.uploadTaskWithRequest(request, fromFile: imageProcessingInfo.filePath, completionHandler: { (data:NSData!, response:NSURLResponse!, error:NSError!) -> Void in
+            let task = self.session.uploadTaskWithRequest(request, fromFile: imageProcessingInfo.filePath, completionHandler: { (inputData:NSData?, response:NSURLResponse?, error:NSError?) -> Void in
                 
-                if let httpResponse = response as? NSHTTPURLResponse {
+                if let httpResponse = response as? NSHTTPURLResponse, let data = inputData {
                     var errorMessage: String? = nil
                     
                     if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
                         
                         var parseError: NSError?
-                        let parsedObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error:&parseError)
+                        let parsedObject: AnyObject?
+                        do {
+                            parsedObject = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+                        } catch let error as NSError {
+                            parseError = error
+                            parsedObject = nil
+                        } catch {
+                            fatalError()
+                        }
                         
                         if parseError == nil && parsedObject != nil {
                             if let output: AnyObject = parsedObject!["output"] as AnyObject?,
@@ -135,11 +140,19 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
                         }
                         
                     } else {
-                        if data != nil {
+                        if let data = inputData {
                             let errorString = NSString(data: data, encoding: NSUTF8StringEncoding)
                             if errorString != nil && errorString != "" {
                                 var parseError: NSError?
-                                let parsedObject: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments, error:&parseError)
+                                let parsedObject: AnyObject?
+                                do {
+                                    parsedObject = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments)
+                                } catch let error as NSError {
+                                    parseError = error
+                                    parsedObject = nil
+                                } catch {
+                                    fatalError()
+                                }
                                 
                                 if parseError == nil &&
                                     parsedObject != nil &&
@@ -152,7 +165,7 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
                             }
                         }
                         if errorMessage == "" && error != nil {
-                            errorMessage = error.localizedDescription
+                            errorMessage = error!.localizedDescription
                         }
                         if errorMessage == "" {
                             errorMessage = "Unknown error"
@@ -203,16 +216,25 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
         if let downloadURL = imageProcessingInfo.downloadURL {
             let request = self.createAuthedRequest("GET", urlForRequest:downloadURL, apiKey: apiKey)
             
-            let task = self.session.downloadTaskWithRequest(request, completionHandler: { (resultURL:NSURL!, response:NSURLResponse!, error:NSError!) -> Void in
+            let task = self.session.downloadTaskWithRequest(request, completionHandler: { (inResultURL:NSURL?, response:NSURLResponse?, error:NSError?) -> Void in
                 
                 var errorMessage: String? = nil
                 if error == nil {
-                    if let httpResponse = response as? NSHTTPURLResponse {
+                    if let httpResponse = response as? NSHTTPURLResponse, let resultURL = inResultURL {
                         
                         if httpResponse.statusCode >= 200 && httpResponse.statusCode < 300 {
                             
                             var copyError: NSError?
-                            let copySuccess = NSFileManager.defaultManager().replaceItemAtURL(imageProcessingInfo.filePath, withItemAtURL: resultURL, backupItemName: nil, options: NSFileManagerItemReplacementOptions.allZeros, resultingItemURL: nil, error: &copyError)
+                            let copySuccess: Bool
+                            do {
+                                try NSFileManager.defaultManager().replaceItemAtURL(imageProcessingInfo.filePath, withItemAtURL: resultURL, backupItemName: nil, options: NSFileManagerItemReplacementOptions(), resultingItemURL: nil)
+                                copySuccess = true
+                            } catch let error as NSError {
+                                copyError = error
+                                copySuccess = false
+                            } catch {
+                                fatalError()
+                            }
                             if !copySuccess || copyError != nil {
                                 errorMessage = (copyError != nil) ? copyError!.localizedDescription : "Could not overwrite original file"
                             } else {
@@ -230,8 +252,8 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
                     } else {
                         errorMessage = "Response was invalid"
                     }
-                } else {
-                    errorMessage = error.localizedDescription
+                } else if error != nil {
+                    errorMessage = error!.localizedDescription
                 }
                 
                 if errorMessage != nil {
@@ -294,7 +316,7 @@ class TinyPNGWorkflow: NSObject, NSURLSessionTaskDelegate {
         
         let authCombo = "api:\(apiKey)"
         let base64Encoded = authCombo.dataUsingEncoding(NSUTF8StringEncoding)
-        if let encodedValue = base64Encoded?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.allZeros) {
+        if let encodedValue = base64Encoded?.base64EncodedStringWithOptions(NSDataBase64EncodingOptions()) {
             request.setValue("Basic \(encodedValue)", forHTTPHeaderField: "Authorization")
         }
         
